@@ -1,6 +1,7 @@
-module Main exposing (Model(..), Msg(..), init, main, subscriptions, update, view)
+module Main exposing (main)
 
 import Browser
+import Counter
 import Html exposing (..)
 import Html.Attributes exposing (..)
 
@@ -13,7 +14,7 @@ main =
     Browser.element
         { init = init
         , update = update
-        , subscriptions = subscriptions
+        , subscriptions = always Sub.none
         , view = view
         }
 
@@ -22,15 +23,22 @@ main =
 -- MODEL
 
 
-type Model
-    = Loading
+type alias Model =
+    { leftCounter : Counter.Model
+    , rightCounter : Counter.Model
+    }
+
+
+initialModel : Model
+initialModel =
+    { leftCounter = Counter.initialModel "Left Counter"
+    , rightCounter = Counter.initialModel "Right Counter"
+    }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( Loading
-    , Cmd.none
-    )
+    ( initialModel, Cmd.none )
 
 
 
@@ -38,23 +46,30 @@ init _ =
 
 
 type Msg
-    = Something
+    = LeftCounterMsg Counter.Msg
+    | RightCounterMsg Counter.Msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Something ->
-            ( Loading, Cmd.none )
+        LeftCounterMsg msg_ ->
+            let
+                ( leftCounterModel_, leftCounterCmd_ ) =
+                    Counter.update msg_ model.leftCounter
+            in
+            ( { model | leftCounter = leftCounterModel_ }
+            , Cmd.map LeftCounterMsg leftCounterCmd_
+            )
 
-
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+        RightCounterMsg msg_ ->
+            let
+                ( rightCounterModel_, rightCounterCmd_ ) =
+                    Counter.update msg_ model.rightCounter
+            in
+            ( { model | rightCounter = rightCounterModel_ }
+            , Cmd.map RightCounterMsg rightCounterCmd_
+            )
 
 
 
@@ -68,4 +83,21 @@ view model =
         [ h1
             [ class "title" ]
             [ text "Components in Elm" ]
+        , nav
+            [ class "level" ]
+            [ div
+                [ class "level-item has-text-centered" ]
+                [ div
+                    []
+                    [ Counter.view LeftCounterMsg model.leftCounter
+                    ]
+                ]
+            , div
+                [ class "level-item has-text-centered" ]
+                [ div
+                    []
+                    [ Counter.view RightCounterMsg model.rightCounter
+                    ]
+                ]
+            ]
         ]
