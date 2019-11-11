@@ -54,22 +54,24 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         LeftCounterMsg msg_ ->
-            let
-                ( leftCounterModel_, leftCounterCmd_ ) =
-                    Counter.update msg_ model.leftCounter
-            in
-            ( { model | leftCounter = leftCounterModel_ }
-            , Cmd.map LeftCounterMsg leftCounterCmd_
-            )
+            Counter.update msg_ model.leftCounter
+                |> mapFirst (\x -> { model | leftCounter = x })
+                |> mapSecond (Cmd.map LeftCounterMsg)
 
         RightCounterMsg msg_ ->
-            let
-                ( rightCounterModel_, rightCounterCmd_ ) =
-                    Counter.update msg_ model.rightCounter
-            in
-            ( { model | rightCounter = rightCounterModel_ }
-            , Cmd.map RightCounterMsg rightCounterCmd_
-            )
+            Counter.update msg_ model.rightCounter
+                |> mapFirst (\x -> { model | rightCounter = x })
+                |> mapSecond (Cmd.map RightCounterMsg)
+
+
+mapFirst : (a -> c) -> ( a, b ) -> ( c, b )
+mapFirst f ( x, y ) =
+    ( f x, y )
+
+
+mapSecond : (b -> c) -> ( a, b ) -> ( a, c )
+mapSecond f ( x, y ) =
+    ( x, f y )
 
 
 

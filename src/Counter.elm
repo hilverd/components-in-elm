@@ -35,14 +35,14 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         Increment ->
-            ( model |> updateCounter ((+) 1), Cmd.none )
+            ( model |> mapCounter ((+) 1), Cmd.none )
 
         Decrement ->
-            ( model |> updateCounter ((+) -1), Cmd.none )
+            ( model |> mapCounter ((+) -1), Cmd.none )
 
 
-updateCounter : (Int -> Int) -> { a | counter : Int } -> { a | counter : Int }
-updateCounter f r =
+mapCounter : (Int -> Int) -> { a | counter : Int } -> { a | counter : Int }
+mapCounter f r =
     { r | counter = f r.counter }
 
 
