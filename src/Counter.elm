@@ -2,7 +2,7 @@ module Counter exposing (Model, Msg, initialModel, update, view)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick)
+import Html.Events as Events
 
 
 
@@ -31,14 +31,23 @@ type Msg
     | Decrement
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        Increment ->
-            ( model |> mapCounter ((+) 1), Cmd.none )
+update :
+    (Model -> parentModel)
+    -> (Msg -> parentMsg)
+    -> Msg
+    -> Model
+    -> ( parentModel, Cmd parentMsg )
+update updateParentModel toParentCmd msg model =
+    let
+        ( model_, cmd ) =
+            case msg of
+                Increment ->
+                    ( model |> mapCounter ((+) 1), Cmd.none )
 
-        Decrement ->
-            ( model |> mapCounter ((+) -1), Cmd.none )
+                Decrement ->
+                    ( model |> mapCounter ((+) -1), Cmd.none )
+    in
+    ( updateParentModel model_, Cmd.map toParentCmd cmd )
 
 
 mapCounter : (Int -> Int) -> { a | counter : Int } -> { a | counter : Int }
@@ -51,7 +60,7 @@ mapCounter f r =
 
 
 view : (Msg -> parentMsg) -> Model -> Html parentMsg
-view msgWrapper model =
+view toParentMsg model =
     div
         []
         [ p
@@ -62,14 +71,14 @@ view msgWrapper model =
             [ button
                 [ class "button"
                 , style "margin-right" "1ex"
-                , onClick <| msgWrapper Decrement
+                , Events.onClick <| toParentMsg Decrement
                 ]
                 [ text "-" ]
             , text <| String.fromInt model.counter
             , button
                 [ class "button"
                 , style "margin-left" "1ex"
-                , onClick <| msgWrapper Increment
+                , Events.onClick <| toParentMsg Increment
                 ]
                 [ text "+" ]
             ]

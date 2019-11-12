@@ -29,16 +29,13 @@ type alias Model =
     }
 
 
-initialModel : Model
-initialModel =
-    { leftCounter = Counter.initialModel "Left Counter"
-    , rightCounter = Counter.initialModel "Right Counter"
-    }
-
-
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( initialModel, Cmd.none )
+    ( { leftCounter = Counter.initialModel "Left Counter"
+      , rightCounter = Counter.initialModel "Right Counter"
+      }
+    , Cmd.none
+    )
 
 
 
@@ -54,24 +51,18 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         LeftCounterMsg msg_ ->
-            Counter.update msg_ model.leftCounter
-                |> mapFirst (\x -> { model | leftCounter = x })
-                |> mapSecond (Cmd.map LeftCounterMsg)
+            Counter.update
+                (\x -> { model | leftCounter = x })
+                LeftCounterMsg
+                msg_
+                model.leftCounter
 
         RightCounterMsg msg_ ->
-            Counter.update msg_ model.rightCounter
-                |> mapFirst (\x -> { model | rightCounter = x })
-                |> mapSecond (Cmd.map RightCounterMsg)
-
-
-mapFirst : (a -> c) -> ( a, b ) -> ( c, b )
-mapFirst f ( x, y ) =
-    ( f x, y )
-
-
-mapSecond : (b -> c) -> ( a, b ) -> ( a, c )
-mapSecond f ( x, y ) =
-    ( x, f y )
+            Counter.update
+                (\x -> { model | rightCounter = x })
+                RightCounterMsg
+                msg_
+                model.rightCounter
 
 
 
