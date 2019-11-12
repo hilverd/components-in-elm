@@ -2,8 +2,8 @@
 
 This is a simple example of how components can be implemented in an Elm application. It is meant to
 be a minimal example focusing just on the basic idea, adapted from the way this is done in libraries
-such as (elm-mdl)[https://github.com/debois/elm-mdl] and
-(elm-sortable-table)[https://github.com/evancz/elm-sortable-table].
+such as [elm-mdl](https://github.com/debois/elm-mdl) and
+[elm-sortable-table](https://github.com/evancz/elm-sortable-table).
 
 In this context, "component" means a small reusable subapplication that needs its own model as well
 as update and view functions. The general
